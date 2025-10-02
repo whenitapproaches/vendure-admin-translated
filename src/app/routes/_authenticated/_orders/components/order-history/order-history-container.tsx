@@ -1,0 +1,82 @@
+import { Alert, AlertDescription } from '@/vdb/components/ui/alert.js';
+import { Button } from '@/vdb/components/ui/button.js';
+import { Skeleton } from '@/vdb/components/ui/skeleton.js';
+import { Trans } from '@/vdb/lib/trans.js';
+import { useTranslation } from '@/vdb/lib/custom-trans.js';
+import { TriangleAlert } from 'lucide-react';
+import { OrderHistory } from './order-history.js';
+import { useOrderHistory } from './use-order-history.js';
+
+interface OrderHistoryContainerProps {
+    orderId: string;
+}
+
+export function OrderHistoryContainer({ orderId }: Readonly<OrderHistoryContainerProps>) {
+    const { t } = useTranslation();
+    const {
+        historyEntries,
+        order,
+        loading,
+        error,
+        addNote,
+        updateNote,
+        deleteNote,
+        fetchNextPage,
+        hasNextPage,
+    } = useOrderHistory({ orderId, pageSize: 10 });
+
+    if (loading && !order) {
+        return (
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold">
+                    {t('Order history')}
+                </h2>
+                <div className="space-y-2">
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <Alert variant="destructive">
+                <TriangleAlert className="h-4 w-4" />
+                <AlertDescription>
+                    {t('Error loading order history')}: {error.message}
+                </AlertDescription>
+            </Alert>
+        );
+    }
+
+    if (!order) {
+        return (
+            <Alert>
+                <AlertDescription>
+                    {t('Order not found')}
+                </AlertDescription>
+            </Alert>
+        );
+    }
+
+    return (
+        <>
+            {order ? (
+                <OrderHistory
+                    order={order}
+                    historyEntries={historyEntries ?? []}
+                    onAddNote={addNote}
+                    onUpdateNote={updateNote}
+                    onDeleteNote={deleteNote}
+                />
+            ) : null}
+            {hasNextPage && (
+                <Button type="button" variant="outline" onClick={() => fetchNextPage()}>
+                    {t('Load more')}
+                </Button>
+            )}
+        </>
+    );
+}
