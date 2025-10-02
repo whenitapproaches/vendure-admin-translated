@@ -21,6 +21,7 @@ export interface MoneyInputProps extends DashboardFormComponentProps {
  */
 export function MoneyInput(props: Readonly<MoneyInputProps>) {
     const { value, onChange, currency, ...rest } = props;
+    console.log(value, props)
     const { activeChannel } = useChannel();
     const activeCurrency = currency ?? activeChannel?.defaultCurrencyCode;
     const readOnly = isReadonlyField(props.fieldDef);

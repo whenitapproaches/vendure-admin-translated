@@ -18,10 +18,11 @@ import { useTranslation } from '@/vdb/lib/custom-trans.js';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ResultOf } from 'gql.tada';
-import { Pencil, User } from 'lucide-react';
+import { Pencil, User, X } from 'lucide-react';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
 import {
+    cancelOrderWithItemsDocument,
     orderDetailDocument,
     setOrderCustomFieldsDocument,
     transitionOrderToStateDocument,
@@ -151,6 +152,35 @@ export function OrderDetailShared({
         }
     }
 
+    const cancelOrderWithItemsMutation = useMutation({
+        mutationFn: api.mutate(cancelOrderWithItemsDocument),
+    })
+
+    const handleCancelOrderClick = async () => {
+        if (!confirm(t("Are you sure you want to cancel this order? This will cancel all order items and cannot be undone."))) {
+            return
+        }
+
+        try {
+            await cancelOrderWithItemsMutation.mutateAsync({
+                orderId: entity.id,
+            })
+
+            toast(t("Order cancelled successfully"))
+
+            // Refresh the order data
+            const queryKey = getDetailQueryOptions(orderDetailDocument, {
+                id: entity.id,
+            }).queryKey
+            await queryClient.invalidateQueries({ queryKey })
+            queryClient.refetchQueries({ queryKey: orderHistoryQueryKey(entity.id) })
+        } catch (error) {
+            toast(t("Failed to cancel order"), {
+                description: error instanceof Error ? error.message : "Unknown error",
+            })
+        }
+    }
+
     return (
         <Page pageId={pageId} form={form} submitHandler={submitHandler} entity={entity}>
             <PageTitle>{titleSlot?.(entity) || <DefaultOrderTitle entity={entity} />}</PageTitle>
@@ -159,15 +189,30 @@ export function OrderDetailShared({
                     dropdownMenuItems={[
                         ...(nextStates.includes('Modifying')
                             ? [
-                                  {
-                                      component: () => (
-                                          <DropdownMenuItem onClick={handleModifyClick}>
-                                              <Pencil className="w-4 h-4" />
-                                              <Trans>Modify</Trans>
-                                          </DropdownMenuItem>
-                                      ),
-                                  },
-                              ]
+                                {
+                                    component: () => (
+                                        <DropdownMenuItem onClick={handleModifyClick}>
+                                            <Pencil className="w-4 h-4" />
+                                            <Trans>Modify</Trans>
+                                        </DropdownMenuItem>
+                                    ),
+                                },
+                            ]
+                            : []),
+                        ...(nextStates.includes("Cancelled") && entity.state !== "Cancelled"
+                            ? [
+                                {
+                                    component: () => (
+                                        <DropdownMenuItem
+                                            onClick={handleCancelOrderClick}
+                                            disabled={cancelOrderWithItemsMutation.isPending}
+                                        >
+                                            <X className="w-4 h-4" />
+                                            <Trans>Cancel</Trans>
+                                        </DropdownMenuItem>
+                                    ),
+                                },
+                            ]
                             : []),
                     ]}
                 >

@@ -16,6 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { createDraftOrderDocument, orderListDocument } from './orders.graphql.js';
+import { Badge } from '@/vdb/index.js';
 
 export const Route = createFileRoute('/_authenticated/_orders/orders')({
     component: OrderListPage,
@@ -92,6 +93,18 @@ function OrderListPage() {
                         return <div>{value.map(line => line.shippingMethod.name).join(', ')}</div>;
                     },
                 },
+                payments: {
+                    header: "Payment Method",
+                    cell: ({ row }) => {
+                        if (!row.original.payments[0]) return ""
+                        const validMethod = row.original.payments?.some(
+                            (payment) =>
+                                payment.state === "Authorized" || payment.state === "Settled"
+                        )
+                        const value = validMethod ? row.original.payments?.[0]?.method : ""
+                        return <Badge variant="outline">{value}</Badge>
+                    },
+                }
             }}
             defaultVisibility={{
                 id: false,

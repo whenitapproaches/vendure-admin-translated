@@ -27,3 +27,11 @@ dist-ssr
 
 src/app/routeTree.gen.ts
 vite/tests/__temp
+ 
+# Env files (Vite)
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

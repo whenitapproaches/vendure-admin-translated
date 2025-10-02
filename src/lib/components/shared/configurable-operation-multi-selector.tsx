@@ -123,6 +123,33 @@ export function ConfigurableOperationMultiSelector({
         return undefined;
     }, data) as ConfigurableOperationDefFragment[] | undefined;
 
+    // Vietnamese localization map for common promotion/collection operations
+    const OPERATION_DESCRIPTION_VI: Record<string, string> = {
+        // Promotion conditions (from the image)
+        'at_least_n_with_facets': 'Mua ít nhất {minimum} sản phẩm có thuộc tính đã chọn',
+        'customer_group': 'Khách thuộc nhóm khách hàng đã chọn',
+        'minimum_order_amount': 'Tổng đơn hàng lớn hơn {amount}',
+        'contains_products': 'Mua ít nhất {minimum} của các sản phẩm chỉ định',
+        
+        // Promotion actions
+        'buy_x_get_y_free': 'Mua X sản phẩm, tặng Y sản phẩm',
+        'order_fixed_discount': 'Giảm cố định {discount} cho toàn bộ đơn',
+        'order_line_fixed_discount': 'Giảm cố định {discount} cho từng dòng sản phẩm',
+        'order_percentage_discount': 'Giảm {discount}% cho toàn bộ đơn',
+        'facet_based_discount': 'Giảm {discount}% cho sản phẩm có thuộc tính đã chọn',
+        'products_percentage_discount': 'Giảm {discount}% cho các sản phẩm chỉ định',
+        'free_shipping': 'Miễn phí vận chuyển',
+    };
+
+    const localizeDescription = (op: ConfigurableOperationDefFragment): string => {
+        const raw = (op.code || '').toLowerCase();
+        const candidates = [raw, raw.replace(/-/g, '_'), raw.replace(/_/g, '-')];
+        for (const k of candidates) {
+            if (OPERATION_DESCRIPTION_VI[k]) return OPERATION_DESCRIPTION_VI[k];
+        }
+        return op.description;
+    };
+
     const onOperationSelected = (operation: ConfigurableOperationDefFragment) => {
         const operationDef = operations?.find(
             (op: ConfigurableOperationDefFragment) => op.code === operation.code,
@@ -244,13 +271,13 @@ export function ConfigurableOperationMultiSelector({
                                 >
                                     {showEnhancedDropdown ? (
                                         <>
-                                            <div className="font-medium text-sm">{operation.description}</div>
+                                            <div className="font-medium text-sm">{localizeDescription(operation)}</div>
                                             <div className="text-xs text-muted-foreground font-mono mt-1">
                                                 {operation.code}
                                             </div>
                                         </>
                                     ) : (
-                                        operation.description
+                                        localizeDescription(operation)
                                     )}
                                 </DropdownMenuItem>
                             ))

@@ -40,8 +40,8 @@ export const Route = createFileRoute('/_authenticated/_promotions/promotions_/$i
         queryDocument: promotionDetailDocument,
         breadcrumb(isNew, entity) {
             return [
-                { path: '/promotions', label: <Trans>Promotions</Trans> },
-                isNew ? <Trans>New promotion</Trans> : entity?.name,
+                { path: '/promotions', label: <Trans>Khuyến mãi</Trans> },
+                isNew ? <Trans>Khuyến mãi mới</Trans> : entity?.name,
             ];
         },
     }),
@@ -99,27 +99,27 @@ function PromotionDetailPage() {
         params: { id: params.id },
         onSuccess: async data => {
             if (data.__typename === 'Promotion') {
-                toast.success(i18n.t(creatingNewEntity ? 'Successfully created promotion' : 'Successfully updated promotion'));
+                toast.success(i18n.t(creatingNewEntity ? 'Tạo khuyến mãi thành công' : 'Cập nhật khuyến mãi thành công'));
                 resetForm();
                 if (creatingNewEntity) {
                     await navigate({ to: `../$id`, params: { id: data.id } });
                 }
             } else {
-                toast.error(i18n.t(creatingNewEntity ? 'Failed to create promotion' : 'Failed to update promotion'), {
+                toast.error(i18n.t(creatingNewEntity ? 'Tạo khuyến mãi thất bại' : 'Cập nhật khuyến mãi thất bại'), {
                     description: data.message,
                 });
             }
         },
         onError: err => {
-            toast.error(i18n.t(creatingNewEntity ? 'Failed to create promotion' : 'Failed to update promotion'), {
-                description: err instanceof Error ? err.message : 'Unknown error',
+            toast.error(i18n.t(creatingNewEntity ? 'Tạo khuyến mãi thất bại' : 'Cập nhật khuyến mãi thất bại'), {
+                description: err instanceof Error ? err.message : 'Lỗi không xác định',
             });
         },
     });
 
     return (
         <Page pageId={pageId} form={form} submitHandler={submitHandler} entity={entity}>
-            <PageTitle>{creatingNewEntity ? <Trans>New promotion</Trans> : (entity?.name ?? '')}</PageTitle>
+            <PageTitle>{creatingNewEntity ? <Trans>Khuyến mãi mới</Trans> : (entity?.name ?? '')}</PageTitle>
             <PageActionBar>
                 <PageActionBarRight>
                     <PermissionGuard requires={['UpdatePromotion']}>
@@ -127,7 +127,7 @@ function PromotionDetailPage() {
                             type="submit"
                             disabled={!form.formState.isDirty || !form.formState.isValid || isPending}
                         >
-                            {creatingNewEntity ? <Trans>Create</Trans> : <Trans>Update</Trans>}
+                            {creatingNewEntity ? <Trans>Tạo</Trans> : <Trans>Cập nhật</Trans>}
                         </Button>
                     </PermissionGuard>
                 </PageActionBarRight>
@@ -137,8 +137,8 @@ function PromotionDetailPage() {
                     <FormFieldWrapper
                         control={form.control}
                         name="enabled"
-                        label={<Trans>Enabled</Trans>}
-                        description={<Trans>When enabled, a promotion is available in the shop</Trans>}
+                        label={<Trans>Kích hoạt</Trans>}
+                        description={<Trans>Khi bật, khuyến mãi sẽ hiển thị trên cửa hàng</Trans>}
                         render={({ field }) => (
                             <Switch checked={field.value} onCheckedChange={field.onChange} />
                         )}
@@ -149,7 +149,7 @@ function PromotionDetailPage() {
                         <TranslatableFormFieldWrapper
                             control={form.control}
                             name="name"
-                            label={<Trans>Name</Trans>}
+                            label={<Trans>Tên</Trans>}
                             render={({ field }) => <Input {...field} />}
                         />
                         <div></div>
@@ -158,7 +158,7 @@ function PromotionDetailPage() {
                         <TranslatableFormFieldWrapper
                             control={form.control}
                             name="description"
-                            label={<Trans>Description</Trans>}
+                            label={<Trans>Mô tả</Trans>}
                             render={({ field }) => <RichTextInput {...field} />}
                         />
                     </div>
@@ -166,7 +166,7 @@ function PromotionDetailPage() {
                         <FormFieldWrapper
                             control={form.control}
                             name="startsAt"
-                            label={<Trans>Starts at</Trans>}
+                            label={<Trans>Bắt đầu lúc</Trans>}
                             render={({ field }) => (
                                 <DateTimeInput
                                     value={field.value}
@@ -177,7 +177,7 @@ function PromotionDetailPage() {
                         <FormFieldWrapper
                             control={form.control}
                             name="endsAt"
-                            label={<Trans>Ends at</Trans>}
+                            label={<Trans>Kết thúc lúc</Trans>}
                             render={({ field }) => (
                                 <DateTimeInput
                                     value={field.value}
@@ -188,13 +188,13 @@ function PromotionDetailPage() {
                         <FormFieldWrapper
                             control={form.control}
                             name="couponCode"
-                            label={<Trans>Coupon code</Trans>}
+                            label={<Trans>Mã giảm giá</Trans>}
                             render={({ field }) => <Input {...field} />}
                         />
                         <FormFieldWrapper
                             control={form.control}
                             name="perCustomerUsageLimit"
-                            label={<Trans>Per customer usage limit</Trans>}
+                            label={<Trans>Giới hạn dùng cho mỗi khách</Trans>}
                             render={({ field }) => (
                                 <Input
                                     type="number"
@@ -206,7 +206,7 @@ function PromotionDetailPage() {
                         <FormFieldWrapper
                             control={form.control}
                             name="usageLimit"
-                            label={<Trans>Usage limit</Trans>}
+                            label={<Trans>Tổng giới hạn sử dụng</Trans>}
                             render={({ field }) => (
                                 <Input
                                     type="number"
@@ -218,7 +218,7 @@ function PromotionDetailPage() {
                     </DetailFormGrid>
                 </PageBlock>
                 <CustomFieldsPageBlock column="main" entityType="Promotion" control={form.control} />
-                <PageBlock column="main" blockId="conditions" title={<Trans>Conditions</Trans>}>
+                <PageBlock column="main" blockId="conditions" title={<Trans>Điều kiện</Trans>}>
                     <FormFieldWrapper
                         control={form.control}
                         name="conditions"
@@ -230,7 +230,7 @@ function PromotionDetailPage() {
                         )}
                     />
                 </PageBlock>
-                <PageBlock column="main" blockId="actions" title={<Trans>Actions</Trans>}>
+                <PageBlock column="main" blockId="actions" title={<Trans>Hành động</Trans>}>
                     <FormFieldWrapper
                         control={form.control}
                         name="actions"

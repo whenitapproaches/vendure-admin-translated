@@ -27,8 +27,8 @@ export function PromotionActionsSelector({ value, onChange }: Readonly<Promotion
             queryDocument={promotionActionsDocument}
             queryKey="promotionActions"
             dataPath="promotionActions"
-            buttonText="Add action"
-            dropdownTitle="Available Actions"
+            buttonText="Thêm hành động"
+            dropdownTitle="Hành động khả dụng"
             showEnhancedDropdown={true}
         />
     );

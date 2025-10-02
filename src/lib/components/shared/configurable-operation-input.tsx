@@ -27,6 +27,40 @@ export function ConfigurableOperationInput({
     onChange,
     onRemove,
 }: Readonly<ConfigurableOperationInputProps>) {
+    // Vietnamese translations for operation titles and argument labels
+    const OP_TITLE_VI: Record<string, string> = {
+        minimum_order_amount: 'Nếu tổng đơn lớn hơn {amount}',
+        at_least_n_with_facets: 'Mua ít nhất {minimum} sản phẩm có thuộc tính đã chọn',
+        contains_products: 'Mua ít nhất {minimum} của các sản phẩm chỉ định',
+        customer_group: 'Khách thuộc nhóm khách hàng đã chọn',
+        buy_x_get_y_free: 'Mua X sản phẩm, tặng Y sản phẩm',
+        order_fixed_discount: 'Giảm cố định {discount} cho toàn bộ đơn',
+        order_line_fixed_discount: 'Giảm cố định {discount} cho từng dòng sản phẩm',
+        order_percentage_discount: 'Giảm {discount}% cho toàn bộ đơn',
+        facet_based_discount: 'Giảm {discount}% cho sản phẩm có thuộc tính đã chọn',
+        products_percentage_discount: 'Giảm {discount}% cho các sản phẩm chỉ định',
+        free_shipping: 'Miễn phí vận chuyển',
+    };
+
+    const ARG_LABEL_VI: Record<string, string> = {
+        amount: 'Số tiền',
+        taxinclusive: 'Đã gồm thuế',
+        minimum: 'Số lượng tối thiểu',
+        x: 'Số lượng mua (X)',
+        y: 'Số lượng tặng (Y)',
+        productvariantids: 'Biến thể sản phẩm',
+        facetvalueids: 'Giá trị thuộc tính',
+        groupid: 'Nhóm khách hàng',
+    };
+
+    const localizeTitle = (op: ConfigurableOperationDefFragment): string => {
+        const raw = (op.code || '').toLowerCase();
+        const key = raw.replace(/-/g, '_');
+        const template = OP_TITLE_VI[key];
+        if (!template) return interpolateDescription(op, value.arguments);
+        // Reuse interpolation util to fill placeholders
+        return interpolateDescription({ ...op, description: template }, value.arguments);
+    };
     const form = useForm({
         defaultValues: {
             ...value,
@@ -56,7 +90,7 @@ export function ConfigurableOperationInput({
                         <div className="flex-1 min-w-0">
                             {!hideDescription && (
                                 <div className="font-medium text-sm text-foreground leading-relaxed">
-                                    {interpolateDescription(operationDefinition, value.arguments)}
+                                    {localizeTitle(operationDefinition)}
                                 </div>
                             )}
 
@@ -100,7 +134,7 @@ export function ConfigurableOperationInput({
                                                     render={() => (
                                                         <FormItem className="space-y-2">
                                                             <FormLabel className="text-sm font-medium text-foreground">
-                                                                {arg.label || arg.name}
+                                                                {ARG_LABEL_VI[(arg.label || arg.name).toLowerCase()] || arg.label || arg.name}
                                                             </FormLabel>
                                                             <FormControl>
                                                                 <ConfigurableOperationArgInput

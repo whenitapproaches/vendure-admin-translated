@@ -12,6 +12,7 @@ export const productVariantListDocument = graphql(
                     featuredAsset {
                         ...Asset
                     }
+                    listPrice
                     name
                     sku
                     enabled
@@ -73,6 +74,7 @@ export const productVariantDetailDocument = graphql(
                     name
                     isDefault
                 }
+                listPrice
                 price
                 priceWithTax
                 prices {
@@ -181,5 +183,11 @@ export const updateProductVariantsDocument = graphql(`
                 code
             }
         }
+    }
+`);
+
+export const updateListPriceDocument = graphql(`
+    mutation UpdateListPrice($variantId: ID!, $listPrice: Float) {
+        updateListPrice(variantId: $variantId, listPrice: $listPrice)
     }
 `);

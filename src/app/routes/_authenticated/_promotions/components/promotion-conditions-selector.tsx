@@ -27,8 +27,8 @@ export function PromotionConditionsSelector({ value, onChange }: Readonly<Promot
             queryDocument={promotionConditionsDocument}
             queryKey="promotionConditions"
             dataPath="promotionConditions"
-            buttonText="Add condition"
-            dropdownTitle="Available Conditions"
+            buttonText="Thêm điều kiện"
+            dropdownTitle="Điều kiện khả dụng"
             showEnhancedDropdown={true}
         />
     );

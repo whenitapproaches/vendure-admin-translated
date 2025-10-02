@@ -76,11 +76,11 @@ export function VariantPriceDetail({
     return (
         <div className="space-y-1">
             <div className="text-sm text-muted-foreground">
-                <Trans>Tax rate: {taxRate}%</Trans>
+                <Trans>Thuế suất: {taxRate}%</Trans>
             </div>
             <div className="text-sm">
                 <Trans>
-                    Gross price: <Money value={grossPrice} currency={currencyCode} />
+                    Giá gồm thuế: <Money value={grossPrice} currency={currencyCode} />
                 </Trans>
             </div>
         </div>
