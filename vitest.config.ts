@@ -15,7 +15,7 @@ export default defineConfig({
     plugins: [
         vendureDashboardPlugin({
             vendureConfigPath: pathToFileURL('./sample-vendure-config.ts'),
-            api: { host: 'http://localhost:3000', port: 'auto' },
+            api: { host: 'https://server.14elevent.com', port: 'auto' },
             gqlOutputPath: path.resolve(__dirname, './src/lib/graphql/'),
             tempCompilationDir: path.resolve(__dirname, './.temp'),
         }) as any,

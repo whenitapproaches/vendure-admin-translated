@@ -112,6 +112,7 @@ function OrderListPage() {
                 updatedAt: false,
                 type: false,
                 currencyCode: false,
+                totalWithTax: false,
             }}
             facetedFilters={{
                 state: {

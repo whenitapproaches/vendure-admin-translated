@@ -3,10 +3,26 @@ import { AwesomeGraphQLClient } from 'awesome-graphql-client';
 import { DocumentNode, print } from 'graphql';
 import { uiConfig } from 'virtual:vendure-ui-config';
 
-const API_URL =
-    (uiConfig.api.host !== "auto" ? `${window.location.protocol}//${uiConfig.api.host}` : `${window.location.protocol}//${window.location.hostname}`) +
-    `:${(uiConfig.api.port !== 'auto' ? uiConfig.api.port : window.location.port)}` +
-    `/${uiConfig.api.adminApiPath}`;
+const API_URL = (() => {
+    let baseUrl: string;
+    
+    if (uiConfig.api.host === "auto") {
+        baseUrl = `${window.location.protocol}//${window.location.hostname}`;
+    } else if (uiConfig.api.host.startsWith('http://') || uiConfig.api.host.startsWith('https://')) {
+        // Host already includes protocol
+        baseUrl = uiConfig.api.host;
+    } else {
+        // Host is just hostname, add protocol
+        baseUrl = `${window.location.protocol}//${uiConfig.api.host}`;
+    }
+    
+    // Add port if not already included in host
+    if (uiConfig.api.port !== 'auto' && !baseUrl.includes(':')) {
+        baseUrl += `:${uiConfig.api.port}`;
+    }
+    
+    return `${baseUrl}/${uiConfig.api.adminApiPath}`;
+})();
 
 export const SELECTED_CHANNEL_TOKEN_KEY = 'vendure-selected-channel-token';
 

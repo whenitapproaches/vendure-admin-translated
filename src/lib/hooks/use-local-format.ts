@@ -49,8 +49,8 @@ export function useLocalFormat() {
             return new Intl.NumberFormat(localeCode, {
                 style: 'currency',
                 currency,
-                minimumFractionDigits: precision ?? moneyStrategyPrecision,
-                maximumFractionDigits: precision ?? moneyStrategyPrecision,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
             }).format(toMajorUnits(value));
         },
         [localeCode, moneyStrategyPrecision, toMajorUnits],

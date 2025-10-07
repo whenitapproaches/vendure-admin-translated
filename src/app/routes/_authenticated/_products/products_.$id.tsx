@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { CreateProductVariantsDialog } from './components/create-product-variants-dialog.js';
 import { ProductVariantsTable } from './components/product-variants-table.js';
 import { createProductDocument, productDetailDocument, updateProductDocument } from './products.graphql.js';
+import { SlugInputComponent } from './components/slug-input.js';
 
 const pageId = 'product-detail';
 
@@ -133,7 +134,7 @@ function ProductDetailPage() {
                             control={form.control}
                             name="slug"
                             label={<Trans>Slug</Trans>}
-                            render={({ field }) => <Input {...field} />}
+                            render={({ field }) => <SlugInputComponent {...field} />}
                         />
                     </DetailFormGrid>
 

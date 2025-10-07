@@ -19,11 +19,13 @@ import { graphql } from '@/vdb/graphql/graphql.js';
 import { Trans } from '@/vdb/lib/trans.js';
 import { useTranslation } from '@/vdb/lib/custom-trans.js';
 import { formatFileSize } from '@/vdb/lib/utils.js';
+import { processFilesWithHeicConversion, createConversionMessage } from '../../../lib/heic-converter.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@uidotdev/usehooks';
 import { Loader2, Search, Upload, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { toast } from 'sonner';
 import { tagListDocument } from '../../../../app/routes/_authenticated/_assets/assets.graphql.js';
 import { AssetTagFilter } from '../../../../app/routes/_authenticated/_assets/components/asset-tag-filter.js';
 import { DetailPageButton } from '../detail-page-button.js';
@@ -170,6 +172,7 @@ export function AssetGallery({
     const [page, setPage] = useState(1);
     const { t } = useTranslation();
     const [search, setSearch] = useState('');
+    const [isConvertingHeic, setIsConvertingHeic] = useState(false);
     const debouncedSearch = useDebounce(search, 500);
     const [assetType, setAssetType] = useState<string>(AssetType.ALL);
     const [selected, setSelected] = useState<Asset[]>(initialSelectedAssets || []);
@@ -227,8 +230,46 @@ export function AssetGallery({
 
     // Setup dropzone
     const onDrop = useCallback(
-        (acceptedFiles: File[]) => {
-            createAssets({ input: acceptedFiles.map(file => ({ file })) });
+        async (acceptedFiles: File[]) => {
+            // Check if any files are HEIC and need conversion
+            const hasHeicFiles = acceptedFiles.some(file => 
+                file.type === 'image/heic' || 
+                file.type === 'image/heif' || 
+                file.name.toLowerCase().endsWith('.heic') || 
+                file.name.toLowerCase().endsWith('.heif')
+            );
+
+            if (hasHeicFiles) {
+                setIsConvertingHeic(true);
+                try {
+                    const { processedFiles, conversions, errors } = await processFilesWithHeicConversion(
+                        acceptedFiles,
+                        { format: 'image/jpeg' }
+                    );
+
+                    // Show conversion feedback
+                    const message = createConversionMessage(conversions, errors);
+                    if (conversions.length > 0) {
+                        toast.success(message);
+                    }
+                    if (errors.length > 0) {
+                        toast.error(message);
+                    }
+
+                    // Upload the processed files
+                    if (processedFiles.length > 0) {
+                        createAssets({ input: processedFiles.map(file => ({ file })) });
+                    }
+                } catch (error) {
+                    console.error('Error processing files:', error);
+                    toast.error('Failed to process some files');
+                } finally {
+                    setIsConvertingHeic(false);
+                }
+            } else {
+                // No HEIC files, upload directly
+                createAssets({ input: acceptedFiles.map(file => ({ file })) });
+            }
         },
         [createAssets],
     );
@@ -381,10 +422,21 @@ export function AssetGallery({
             >
                 <input {...getInputProps()} />
 
-                {isDragActive && (
+                {(isDragActive || isConvertingHeic) && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-md">
-                        <Upload className="h-12 w-12 text-primary mb-2" />
-                        <p className="text-center font-medium">Drop files here to upload</p>
+                        {isConvertingHeic ? (
+                            <>
+                                <Loader2 className="h-12 w-12 text-primary mb-2 animate-spin" />
+                                <p className="text-center font-medium">Converting HEIC files...</p>
+                                <p className="text-center text-sm text-muted-foreground mt-1">This may take a moment</p>
+                            </>
+                        ) : (
+                            <>
+                                <Upload className="h-12 w-12 text-primary mb-2" />
+                                <p className="text-center font-medium">Drop files here to upload</p>
+                                <p className="text-center text-sm text-muted-foreground mt-1">HEIC files will be automatically converted</p>
+                            </>
+                        )}
                     </div>
                 )}
 

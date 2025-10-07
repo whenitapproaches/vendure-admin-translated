@@ -179,12 +179,12 @@ function ProductVariantDetailPage() {
                             render={({ field }) => <Input {...field} />}
                         />
 
-                        <FormFieldWrapper
+                        {/* <FormFieldWrapper
                             control={form.control}
                             name="sku"
                             label={<Trans>SKU</Trans>}
                             render={({ field }) => <Input {...field} />}
-                        />
+                        /> */}
                     </DetailFormGrid>
                 </PageBlock>
                 <CustomFieldsPageBlock column="main" entityType="ProductVariant" control={form.control} />

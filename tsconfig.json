@@ -17,7 +17,7 @@
     "plugins": [
       {
         "name": "gql.tada/ts-plugin",
-        "schema": "http://localhost:3000/admin-api",
+        "schema": "https://server.14elevent.com/admin-api",
         "tadaOutputLocation": "./src/lib/graphql/graphql-env.d.ts"
       }
     ]

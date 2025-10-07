@@ -58,8 +58,10 @@ export function ProductVariantsTable({
                 featuredAsset: true,
                 name: true,
                 enabled: true,
+                sku: false,
                 price: true,
-                priceWithTax: true,
+                priceWithTax: false,
+                currencyCode: false,
                 stockLevels: true,
             }}
             bulkActions={[

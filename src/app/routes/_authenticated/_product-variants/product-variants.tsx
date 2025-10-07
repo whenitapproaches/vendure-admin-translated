@@ -25,6 +25,11 @@ function ProductListPage() {
             pageId="product-variant-list"
             title={<Trans>Product Variants</Trans>}
             listQuery={productVariantListDocument}
+            defaultVisibility={{
+                sku: false,
+                currencyCode: false,
+                priceWithTax: false,
+            }}
             bulkActions={[
                 {
                     component: AssignProductVariantsToChannelBulkAction,

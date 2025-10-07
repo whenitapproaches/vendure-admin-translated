@@ -10,10 +10,7 @@ export default ({ mode }: { mode: string }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
   const adminApiHost =
-    process.env.VITE_ADMIN_API_HOST ?? "localhost"
-  const adminApiPort = process.env.VITE_ADMIN_API_PORT
-    ? +process.env.VITE_ADMIN_API_PORT
-    : 3000
+    process.env.VITE_ADMIN_API_HOST ?? "localhost:3000"
 
   process.env.IS_LOCAL_DEV = adminApiHost.includes("localhost")
     ? "true"
@@ -29,7 +26,7 @@ export default ({ mode }: { mode: string }) => {
     plugins: [
       vendureDashboardPlugin({
         vendureConfigPath: pathToFileURL(vendureConfigPath),
-        api: { host: adminApiHost, port: adminApiPort },
+        api: { host: adminApiHost },
         gqlOutputPath: path.resolve(__dirname, './src/lib/graphql/'),
         tempCompilationDir: path.resolve(__dirname, './.temp'),
       }) as any,

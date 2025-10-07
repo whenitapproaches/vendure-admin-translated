@@ -131,7 +131,6 @@ export function FulfillmentDetails({ order, fulfillment, onSuccess }: Readonly<F
                                         </div>
                                         <div className="flex items-center gap-2 text-xs">
                                             <span>{t('Qty')}: {line.quantity}</span>
-                                            {sku && <span>{t('SKU')}: {sku}</span>}
                                         </div>
                                     </div>
                                 );
