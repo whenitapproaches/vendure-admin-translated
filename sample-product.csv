@@ -1,0 +1,6 @@
+name,slug,sku,price,taxCategoryName,listPrice,assets,variantAssets,collectionName
+Chocolate Cake,chocolate-cake,CAKE-CHOC,1299,Standard,1499,https://cdn.example.com/images/cakes/choc1.jpg|https://cdn.example.com/images/cakes/choc2.jpg,,Cakes|Chocolate
+Chocolate Cake,chocolate-cake,CAKE-CHOC-LARGE,1899,Standard,2199,,https://cdn.example.com/images/cakes/choc-large.jpg,Cakes|Chocolate
+Vanilla Cake,,CAKE-VAN,1199,Reduced,1399,https://cdn.example.com/images/cakes/van1.jpg,https://cdn.example.com/images/cakes/van-variant1.jpg|https://cdn.example.com/images/cakes/van-variant2.jpg,Cakes|Vanilla
+Birthday Cupcakes,birthday-cupcakes,CUP-12,2499,Standard,2999,https://cdn.example.com/images/cupcakes/bday1.jpg,,Cupcakes|Birthday
+Lemon Tart,lemon-tart,TART-LEM,1599,Standard,1799,https://cdn.example.com/images/tarts/lemon1.jpg,,Tarts|Citrus

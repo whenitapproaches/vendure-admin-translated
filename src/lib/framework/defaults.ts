@@ -56,6 +56,13 @@ export function registerDefaults() {
                         requiresPermission: ['ReadProduct', 'ReadCatalog'],
                     },
                     {
+                        id: 'import-products',
+                        title: translate('Import'),
+                        url: '/import',
+                        order: 600,
+                        requiresPermission: ['CreateProduct', 'CreateCatalog'],
+                    },
+                    {
                         id: 'collections',
                         title: 'Collections',
                         url: '/collections',

@@ -11,12 +11,14 @@ import {
 import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import fs from 'fs-extra';
-import path from 'path';
+import * as path from 'path';
 
 import { adminApiExtensions } from './api/api-extensions.js';
 import { MetricsResolver } from './api/metrics.resolver.js';
+import { ProductImportResolver } from './api/product-import.resolver.js';
 import { DEFAULT_APP_PATH, loggerCtx } from './constants.js';
 import { MetricsService } from './service/metrics.service.js';
+import { ProductImportService } from './service/product-import.service.js';
 
 /**
  * @description
@@ -102,9 +104,9 @@ export interface DashboardPluginOptions {
     imports: [PluginCommonModule],
     adminApiExtensions: {
         schema: adminApiExtensions,
-        resolvers: [MetricsResolver],
+        resolvers: [MetricsResolver, ProductImportResolver],
     },
-    providers: [MetricsService],
+    providers: [MetricsService, ProductImportService],
     configuration: config => {
         config.settingsStoreFields['vendure.dashboard'] = [
             {

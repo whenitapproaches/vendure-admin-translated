@@ -3,7 +3,7 @@ import { AwesomeGraphQLClient } from 'awesome-graphql-client';
 import { DocumentNode, print } from 'graphql';
 import { uiConfig } from 'virtual:vendure-ui-config';
 
-const API_URL = (() => {
+export const API_URL = (() => {
     let baseUrl: string;
     
     if (uiConfig.api.host === "auto") {

@@ -1,10 +1,16 @@
 {
   "extends": [
-    "../../tsconfig.json"
+    "./tsconfig.json"
   ],
   "compilerOptions": {
     "declaration": true,
-    "outDir": "./dist/plugin"
+    "outDir": "./dist/plugin",
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node"
   },
   "include": [
     "plugin/**/*"
