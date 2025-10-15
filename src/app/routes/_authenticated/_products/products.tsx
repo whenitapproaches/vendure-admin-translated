@@ -34,6 +34,10 @@ function ProductListPage() {
                     header: t('Product Name'),
                     cell: ({ row }) => <DetailPageButton id={row.original.id} label={row.original.name} />,
                 },
+                collections: {
+                    header: t('Collections'),
+                    cell: ({ row }) => row.original.collections.map(c => c.name).join(', '),
+                }
             }}
             onSearchTermChange={searchTerm => {
                 return {
