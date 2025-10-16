@@ -531,6 +531,9 @@ export function getTypeFieldInfo(typeName: string): FieldInfo[] {
 
 function getQueryInfo(name: string): FieldInfo {
     const fieldInfo = schemaInfo.types.Query[name];
+    if(!fieldInfo) {
+        return null
+    }
     return {
         name,
         type: fieldInfo[0],
