@@ -56,6 +56,49 @@ const searchProductsDocument = graphql(`
     }
 `);
 
+const getProductsByIdsDocument = graphql(`
+    query GetProductsByIds($ids: [String!]!) {
+        products(options: { filter: { id: { in: $ids } }, take: 999 }) {
+            items {
+                id
+                enabled
+                name
+                slug
+                featuredAsset {
+                    id
+                    preview
+                }
+            }
+        }
+    }
+`);
+
+const getProductVariantsByIdsDocument = graphql(`
+    query GetProductVariantsByIds($ids: [String!]!) {
+        productVariants(options: { filter: { id: { in: $ids } }, take: 999 }) {
+            items {
+                id
+                enabled
+                name
+                sku
+                featuredAsset {
+                    id
+                    preview
+                }
+                product {
+                    id
+                    name
+                    slug
+                    featuredAsset {
+                        id
+                        preview
+                    }
+                }
+            }
+        }
+    }
+`);
+
 type SearchItem = {
     enabled: boolean;
     productId: string;
@@ -204,6 +247,22 @@ function ProductMultiSelectorDialog({
         [mode],
     );
 
+    const selectedItemsById = useMemo(() => {
+        const map = new Map<string, SearchItem>();
+        selectedItems.forEach(item => {
+            map.set(getItemId(item), item);
+        });
+        return map;
+    }, [selectedItems, getItemId]);
+
+    const hasSelectedFilteredItems = useMemo(() => {
+        if (items.length === 0 || selectedIds.size === 0) {
+            return false;
+        }
+
+        return items.some(item => selectedIds.has(getItemId(item)));
+    }, [items, selectedIds, getItemId]);
+
     // Get the appropriate name for an item based on mode
     const getItemName = useCallback(
         (item: SearchItem): string => {
@@ -211,6 +270,14 @@ function ProductMultiSelectorDialog({
         },
         [mode],
     );
+
+    const missingSelectedIds = useMemo(() => {
+        if (!open || selectedIds.size === 0) {
+            return [];
+        }
+
+        return Array.from(selectedIds).filter(id => !selectedItemsById.has(id));
+    }, [open, selectedIds, selectedItemsById]);
 
     // Toggle item selection
     const toggleSelection = useCallback(
@@ -242,6 +309,31 @@ function ProductMultiSelectorDialog({
         setSelectedItems([]);
     }, []);
 
+    const deselectFilteredItems = useCallback(() => {
+        if (!hasSelectedFilteredItems) {
+            return;
+        }
+
+        const filteredIds = new Set(items.map(getItemId));
+        let hasChanges = false;
+
+        const newSelectedIds = new Set(selectedIds);
+        filteredIds.forEach(id => {
+            if (newSelectedIds.delete(id)) {
+                hasChanges = true;
+            }
+        });
+
+        if (!hasChanges) {
+            return;
+        }
+
+        const newSelectedItems = selectedItems.filter(item => !filteredIds.has(getItemId(item)));
+
+        setSelectedIds(newSelectedIds);
+        setSelectedItems(newSelectedItems);
+    }, [hasSelectedFilteredItems, items, selectedIds, selectedItems, getItemId]);
+
     // Handle selection confirmation
     const handleSelect = useCallback(() => {
         onSelectionChange(Array.from(selectedIds));
@@ -252,9 +344,11 @@ function ProductMultiSelectorDialog({
     useEffect(() => {
         if (open) {
             setSelectedIds(new Set(initialSelectionIds));
-            // We'll update the selectedItems once we have search results that match the IDs
+            setSelectedItems(prevItems =>
+                prevItems.filter(item => initialSelectionIds.includes(getItemId(item))),
+            );
         }
-    }, [open, initialSelectionIds]);
+    }, [open, initialSelectionIds, getItemId]);
 
     // Update selectedItems when we have search results that match our selected IDs
     useEffect(() => {
@@ -269,6 +363,57 @@ function ProductMultiSelectorDialog({
             }
         }
     }, [items, selectedIds, getItemId]);
+
+    const { data: fetchedSelectedItems } = useQuery({
+        queryKey: ['selectedItemsByIds', mode, missingSelectedIds],
+        queryFn: async () => {
+            if (mode === 'product') {
+                const response = await api.query(getProductsByIdsDocument, { ids: missingSelectedIds });
+                const productItems = response.products?.items ?? [];
+                return productItems.map<SearchItem>(product => ({
+                    enabled: product.enabled ?? false,
+                    productId: product.id,
+                    productName: product.name,
+                    slug: product.slug,
+                    productAsset: product.featuredAsset ?? null,
+                    productVariantId: product.id,
+                    productVariantName: product.name,
+                    productVariantAsset: product.featuredAsset ?? null,
+                    sku: '',
+                }));
+            }
+
+            const response = await api.query(getProductVariantsByIdsDocument, { ids: missingSelectedIds });
+            const variantItems = response.productVariants?.items ?? [];
+            return variantItems.map<SearchItem>(variant => ({
+                enabled: variant.enabled ?? false,
+                productId: variant.product?.id ?? '',
+                productName: variant.product?.name ?? '',
+                slug: variant.product?.slug ?? '',
+                productAsset: variant.product?.featuredAsset ?? null,
+                productVariantId: variant.id,
+                productVariantName: variant.name,
+                productVariantAsset: variant.featuredAsset ?? variant.product?.featuredAsset ?? null,
+                sku: variant.sku ?? '',
+            }));
+        },
+        enabled: open && missingSelectedIds.length > 0,
+    });
+
+    useEffect(() => {
+        if (!fetchedSelectedItems || fetchedSelectedItems.length === 0) {
+            return;
+        }
+
+        setSelectedItems(prevItems => {
+            const existingIds = new Set(prevItems.map(getItemId));
+            const uniqueNewItems = fetchedSelectedItems.filter(item => !existingIds.has(getItemId(item)));
+            if (uniqueNewItems.length === 0) {
+                return prevItems;
+            }
+            return [...prevItems, ...uniqueNewItems];
+        });
+    }, [fetchedSelectedItems, getItemId]);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -293,6 +438,13 @@ function ProductMultiSelectorDialog({
                     <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Items Grid */}
                         <div className="lg:col-span-2 overflow-auto flex flex-col">
+                            {hasSelectedFilteredItems && (
+                                <div className="flex justify-end px-2 pt-2">
+                                    <Button variant="outline" size="sm" onClick={deselectFilteredItems}>
+                                        <Trans>Deselect filtered items</Trans>
+                                    </Button>
+                                </div>
+                            )}
                             <div className="space-y-2 p-2">
                                 {isLoading && <LoadingState />}
                                 {!isLoading && items.length === 0 && <EmptyState />}
@@ -377,7 +529,29 @@ export const ProductMultiInput: DashboardFormComponent = ({ value, onChange, ...
     // Parse the configuration from the field definition
     const mode = props.fieldDef?.ui?.selectionMode === 'variant' ? 'variant' : 'product';
     // Parse the current value (JSON array of IDs)
-    const selectedIds = value;
+    const selectedIds = useMemo<string[]>(() => {
+        if (Array.isArray(value)) {
+            return value.filter((id): id is string => typeof id === 'string');
+        }
+
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed.length === 0) {
+                return [];
+            }
+
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    return parsed.filter((id): id is string => typeof id === 'string');
+                }
+            } catch {
+                return [];
+            }
+        }
+
+        return [];
+    }, [value]);
 
     const handleSelectionChange = useCallback(
         (newSelectedIds: string[]) => {

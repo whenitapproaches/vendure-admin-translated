@@ -119,7 +119,6 @@ export function useGeneratedForm<
             const isValid = await form.trigger();
 
             if (!isValid) {
-                console.log(`Form invalid!`);
                 event.stopPropagation();
                 return;
             }

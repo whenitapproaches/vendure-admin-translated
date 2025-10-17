@@ -94,7 +94,6 @@ export async function processFilesWithHeicConversion(
     for (const file of files) {
         try {
             if (isHeicFile(file)) {
-                console.log(`Converting HEIC file: ${file.name}`);
                 const convertedFile = await convertHeicFile(file, options);
                 processedFiles.push(convertedFile);
                 conversions.push({

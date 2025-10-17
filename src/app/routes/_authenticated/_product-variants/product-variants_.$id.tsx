@@ -133,7 +133,6 @@ function ProductVariantDetailPage() {
     const [listPrice, setListPrice] = useState(entity?.listPrice);
 
     const onSubmit = (values: any) => {
-        console.log(entity)
         updateListPrice({
             variantId: entity?.id,
             listPrice: listPrice,
